@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 @Configuration
-class EcmApiRoutes extends RouteBuilder {
+class ApiRoute extends RouteBuilder {
 
     public final DocumentViewService viewDocumentService;
 
@@ -23,7 +23,7 @@ class EcmApiRoutes extends RouteBuilder {
     @Value("${runstatus}")
     private String runStatus;
 
-    public EcmApiRoutes(DocumentViewService viewDocumentService) {
+    public ApiRoute(DocumentViewService viewDocumentService) {
         this.viewDocumentService = viewDocumentService;
     }
 
@@ -67,6 +67,19 @@ class EcmApiRoutes extends RouteBuilder {
         ;
         from("direct:viewDocumentService")
                 .bean(viewDocumentService)
+                .endRest()
+        ;
+
+        rest()
+                .get("/")
+                .to("direct:runningStatus")
+        ;
+        from("direct:runningStatus")
+                .log("Status request sent")
+                .log("runStatus property value is " + runStatus)
+                .process(exchange -> exchange.getIn().setBody(new SimpleMessage(runStatus), SimpleMessage.class))
+                .setHeader(Exchange.HTTP_RESPONSE_CODE, constant(200))
+                .setHeader("Content-Type", constant("application/json"))
                 .endRest()
         ;
 
