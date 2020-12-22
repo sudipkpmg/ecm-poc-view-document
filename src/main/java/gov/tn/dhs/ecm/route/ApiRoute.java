@@ -75,7 +75,6 @@ class ApiRoute extends RouteBuilder {
                 .to("direct:runningStatus")
         ;
         from("direct:runningStatus")
-                .log("Status request sent")
                 .log("runStatus property value is " + runStatus)
                 .process(exchange -> exchange.getIn().setBody(new SimpleMessage(runStatus), SimpleMessage.class))
                 .setHeader(Exchange.HTTP_RESPONSE_CODE, constant(200))
